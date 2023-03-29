@@ -1,26 +1,36 @@
 import NextAuth from "next-auth";
-import GithubProvider from "next-auth/providers/github"
+import SpotifyProvider from "next-auth/providers/spotify"
 
+
+
+const scope = "user-read-recently-played user-read-playback-state user-top-read user-modify-playback-state user-read-currently-playing user-follow-read playlist-read-private user-read-email user-read-private user-library-read playlist-read-collaborative"
 export const authOptions = {
     providers: [
-        GithubProvider({
-            clientId: process.env.GITHUB_ID,
-            clientSecret: process.env.GITHUB_SECRET,
+        SpotifyProvider({
+            clientId: process.env.SPOTIFY_ID,
+            clientSecret: process.env.SPOTIFY_SECRET,
+            authorization: {
+                params: { scope },
+            }
         })
     ],
+    secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
         async jwt({ token, account }) {
-            // Persist the OAuth access_token to the token right after signin
             if (account) {
-                token.accessToken = account.access_token
+                token.id = account.providerAccountId;
+                token.expires_at = account.expires_at;
+                token.accesToken = account.access_token;
             }
-            return token
+            return token;
         },
-        async session({ session, token, user }) {
-            // Send properties to the client, like an access_token from a provider.
-            session.accessToken = token.accessToken
-            return session
-        }
+        async session({ session, token }) {
+            session.user = token;
+            return session;
+        },
+    },
+    pages: {
+        signIn: '/login'
     }
 }
 

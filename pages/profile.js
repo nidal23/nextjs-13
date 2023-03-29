@@ -4,6 +4,7 @@ import Link from "next/link";
 
 const Profile = () => {
   const { data: session } = useSession();
+  console.log({ session });
   return (
     <div>
       <Link href="/">
